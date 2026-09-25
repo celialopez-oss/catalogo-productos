@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo 2026</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Iconos para WhatsApp y diseño -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Cabecera -->
+    <header class="header">
+        <div class="logo-container">
+            <!-- Reemplaza 'logo.png' por la ruta de tu logo o una imagen URL -->
+            <img src="logo.png" alt="Logo Compañía" class="logo" onerror="this.src='https://via.placeholder.com/60?text=LOGO'">
+            <span class="company-name">Mi Compañía</span>
+        </div>
+        <div class="header-title">
+            <h1>Catálogo 2026</h1>
+        </div>
+        <!-- Enlace oculto o discreto para ir al administrador -->
+        <div class="admin-link-container">
+            <a href="admin.html" class="admin-btn-hidden" title="Panel Admin"><i class="fa-solid fa-lock"></i> Admin</a>
+        </div>
+    </header>
+
+    <!-- Contenedor Principal -->
+    <main class="container">
+        
+        <!-- Botones de Categorías -->
+        <section class="categories-section">
+            <h2>Categorías</h2>
+            <div id="category-filters" class="category-buttons">
+                <!-- Se generan dinámicamente con JavaScript -->
+            </div>
+        </section>
+
+        <!-- Cuadrícula de Productos -->
+        <section class="products-section">
+            <h2 id="current-category-title">Todos los Productos</h2>
+            <div id="product-grid" class="product-grid">
+                <!-- Los productos se cargan aquí automáticamente -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Script para cargar los productos y filtros -->
+    <script>
+        // Cargar productos desde localStorage o usar unos de ejemplo iniciales
+        let productos = JSON.parse(localStorage.getItem('catalogo_productos')) || [
+            { id: 1, categoria: "Juguetes", nombre: "Auto a Batería", precio: 45.00, descuento: 10, descripcion: "Auto deportivo eléctrico recargable para niños.", imagen: "https://images.unsplash.com/photo-1594787318286-3d835c1d202f?w=400" },
+            { id: 2, categoria: "Lactancia", nombre: "Extractor de Leche", precio: 30.00, descuento: 0, descripcion: "Extractor eléctrico doble con masajeador de silicona.", imagen: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400" },
+            { id: 3, categoria: "Sillas", nombre: "Silla de Comer Alta", precio: 60.00, descuento: 15, descripcion: "Silla ajustable con bandeja desmontable y lavable.", imagen: "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400" }
+        ];
+
+        const numeroWhatsApp = "593999999999"; // Reemplaza con tu número de WhatsApp con código de país
+
+        function renderCategories() {
+            const container = document.getElementById('category-filters');
+            const categorias = ['Todos', ...new Set(productos.map(p => p.categoria))];
+            
+            container.innerHTML = '';
+            categorias.forEach((cat, index) => {
+                const btn = document.createElement('button');
+                btn.className = `cat-btn ${index === 0 ? 'active' : ''}`;
+                btn.textContent = cat;
+                btn.onclick = () => {
+                    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    filtrarProductos(cat);
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        function filtrarProductos(categoria) {
+            const grid = document.getElementById('product-grid');
+            const title = document.getElementById('current-category-title');
+            title.textContent = categoria === 'Todos' ? 'Todos los Productos' : categoria;
+            
+            const filtrados = categoria === 'Todos' ? productos : productos.filter(p => p.categoria === categoria);
+            
+            grid.innerHTML = '';
+            if (filtrados.length === 0) {
+                grid.innerHTML = '<p class="no-products">No hay productos en esta categoría.</p>';
+                return;
+            }
+
+            filtrados.forEach(prod => {
+                let precioFinal = prod.precio;
+                let descuentoHTML = '';
+                
+                if (prod.descuento && prod.descuento > 0) {
+                    precioFinal = prod.precio - (prod.precio * prod.descuento / 100);
+                    descuentoHTML = `<span class="badge-discount">-${prod.descuento}%</span>`;
+                }
+
+                const mensajeWp = encodeURIComponent(`Hola, estoy interesado/a en el producto *${prod.nombre}* con precio de $${precioFinal.toFixed(2)}. ¿Me da más información?`);
+                const linkWp = `https://wa.me/${numeroWhatsApp}?text=${mensajeWp}`;
+
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <div class="image-container">
+                        <img src="${prod.imagen}" alt="${prod.nombre}" onerror="this.src='https://via.placeholder.com/300?text=Sin+Imagen'">
+                        ${descuentoHTML}
+                    </div>
+                    <div class="product-info">
+                        <span class="product-category-tag">${prod.categoria}</span>
+                        <h3>${prod.nombre}</h3>
+                        <p class="description">${prod.descripcion}</p>
+                        <div class="price-box">
+                            ${prod.descuento > 0 ? `<span class="old-price">$${Number(prod.precio).toFixed(2)}</span>` : ''}
+                            <span class="current-price">$${precioFinal.toFixed(2)}</span>
+                        </div>
+                        <a href="${linkWp}" target="_blank" class="whatsapp-btn">
+                            <i class="fa-brands fa-whatsapp"></i> Preguntar / Comprar
+                        </a>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Inicializar al cargar la página
+        renderCategories();
+        filtrarProductos('Todos');
+    </script>
+</body>
+</html>
