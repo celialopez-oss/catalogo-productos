@@ -47,8 +47,9 @@ body {
 }
 
 .header-title h1 {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     color: #333;
+    text-align: center;
 }
 
 /* Contenedor */
@@ -151,12 +152,27 @@ body {
     flex-grow: 1;
 }
 
+.product-top-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
 .product-category-tag {
     font-size: 0.75rem;
     color: #888;
     text-transform: uppercase;
     font-weight: bold;
-    margin-bottom: 5px;
+}
+
+.product-code-tag {
+    font-size: 0.75rem;
+    background: #eee;
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: #555;
+    font-weight: 600;
 }
 
 .product-info h3 {
@@ -265,9 +281,20 @@ body {
     cursor: pointer;
 }
 
+.cancel-btn {
+    background: #ccc;
+    color: #333;
+    border: none;
+    padding: 10px;
+    width: 100%;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
 .admin-list {
     margin-top: 15px;
-    max-height: 400px;
+    max-height: 450px;
     overflow-y: auto;
 }
 
@@ -281,8 +308,22 @@ body {
 }
 
 .admin-item-info {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     flex-grow: 1;
+}
+
+.admin-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.edit-btn {
+    background: #3498db;
+    color: #fff;
+    border: none;
+    padding: 8px 10px;
+    border-radius: 4px;
+    cursor: pointer;
 }
 
 .delete-btn {
