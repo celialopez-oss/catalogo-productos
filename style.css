@@ -1,8 +1,10 @@
 :root {
-    --primary-color: #25d366;
-    --dark-color: #222;
-    --light-bg: #f9f9f9;
-    --border-color: #e0e0e0;
+    --color-turquesa: #19efee;
+    --color-morado: #2f2f2f;
+    --color-gris: #a0a2ad;
+    --color-salmon: #fb5c74;
+    --color-fondo: #f2f2f2;
+    --border-color: #a0a2ad;
 }
 
 * {
@@ -13,8 +15,8 @@
 }
 
 body {
-    background-color: var(--light-bg);
-    color: var(--dark-color);
+    background-color: var(--color-fondo);
+    color: var(--color-morado);
 }
 
 /* Cabecera */
@@ -24,7 +26,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 2px solid var(--color-gris);
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
@@ -44,11 +46,12 @@ body {
 .company-name {
     font-weight: bold;
     font-size: 1.1rem;
+    color: var(--color-morado);
 }
 
 .header-title h1 {
     font-size: 1.4rem;
-    color: #333;
+    color: var(--color-morado);
     text-align: center;
 }
 
@@ -68,7 +71,7 @@ body {
 .categories-section h2 {
     margin-bottom: 15px;
     font-size: 1.2rem;
-    color: #666;
+    color: var(--color-morado);
 }
 
 .category-buttons {
@@ -81,23 +84,25 @@ body {
 .cat-btn {
     padding: 8px 18px;
     background: #fff;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-gris);
     border-radius: 20px;
     cursor: pointer;
     font-weight: 600;
+    color: var(--color-morado);
     transition: all 0.3s ease;
 }
 
 .cat-btn:hover, .cat-btn.active {
-    background: var(--dark-color);
-    color: #fff;
-    border-color: var(--dark-color);
+    background: var(--color-turquesa);
+    color: var(--color-morado);
+    border-color: var(--color-turquesa);
 }
 
 /* Cuadrícula de Productos */
 .products-section h2 {
     margin-bottom: 20px;
     font-size: 1.4rem;
+    color: var(--color-morado);
 }
 
 .product-grid {
@@ -114,6 +119,7 @@ body {
     display: flex;
     flex-direction: column;
     transition: transform 0.2s;
+    border: 1px solid #e0e0e0;
 }
 
 .product-card:hover {
@@ -137,7 +143,7 @@ body {
     position: absolute;
     top: 10px;
     right: 10px;
-    background: #ff4757;
+    background: var(--color-salmon);
     color: #fff;
     padding: 4px 8px;
     font-size: 0.8rem;
@@ -161,7 +167,7 @@ body {
 
 .product-category-tag {
     font-size: 0.75rem;
-    color: #888;
+    color: var(--color-gris);
     text-transform: uppercase;
     font-weight: bold;
 }
@@ -171,18 +177,19 @@ body {
     background: #eee;
     padding: 2px 6px;
     border-radius: 4px;
-    color: #555;
+    color: var(--color-morado);
     font-weight: 600;
 }
 
 .product-info h3 {
     font-size: 1.1rem;
     margin-bottom: 8px;
+    color: var(--color-morado);
 }
 
 .description {
     font-size: 0.9rem;
-    color: #666;
+    color: #555;
     margin-bottom: 15px;
     flex-grow: 1;
 }
@@ -196,20 +203,20 @@ body {
 
 .old-price {
     text-decoration: line-through;
-    color: #999;
+    color: var(--color-gris);
     font-size: 0.9rem;
 }
 
 .current-price {
     font-size: 1.2rem;
     font-weight: bold;
-    color: #2ecc71;
+    color: #27ae60;
 }
 
 /* Botón de WhatsApp */
 .whatsapp-btn {
-    background-color: var(--primary-color);
-    color: white;
+    background-color: var(--color-turquesa);
+    color: var(--color-morado);
     text-align: center;
     padding: 10px;
     border-radius: 5px;
@@ -219,11 +226,11 @@ body {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    transition: background 0.2s;
+    transition: opacity 0.2s;
 }
 
 .whatsapp-btn:hover {
-    background-color: #1ebe5d;
+    opacity: 0.85;
 }
 
 /* Estilos de Admin */
@@ -255,24 +262,30 @@ body {
     margin-bottom: 5px;
     font-weight: 600;
     font-size: 0.9rem;
+    color: var(--color-morado);
 }
 
 .form-group input, .form-group textarea {
     width: 100%;
     padding: 10px;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--color-gris);
     border-radius: 5px;
     font-size: 0.95rem;
+    outline: none;
+}
+
+.form-group input:focus, .form-group textarea:focus {
+    border-color: var(--color-turquesa);
 }
 
 .form-group small {
-    color: #777;
+    color: var(--color-gris);
     font-size: 0.8rem;
 }
 
 .submit-btn {
-    background: var(--dark-color);
-    color: #fff;
+    background: var(--color-turquesa);
+    color: var(--color-morado);
     border: none;
     padding: 12px;
     width: 100%;
@@ -282,8 +295,8 @@ body {
 }
 
 .cancel-btn {
-    background: #ccc;
-    color: #333;
+    background: var(--color-gris);
+    color: white;
     border: none;
     padding: 10px;
     width: 100%;
@@ -318,7 +331,7 @@ body {
 }
 
 .edit-btn {
-    background: #3498db;
+    background: var(--color-morado);
     color: #fff;
     border: none;
     padding: 8px 10px;
@@ -327,7 +340,7 @@ body {
 }
 
 .delete-btn {
-    background: #ff4757;
+    background: var(--color-salmon);
     color: #fff;
     border: none;
     padding: 8px 10px;
@@ -336,17 +349,18 @@ body {
 }
 
 .admin-btn-hidden {
-    color: #aaa;
+    color: var(--color-morado);
     text-decoration: none;
-    font-size: 0.8rem;
+    font-size: 0.9rem;
+    font-weight: 600;
 }
 
 .admin-btn-hidden:hover {
-    color: #333;
+    color: var(--color-turquesa);
 }
 
 .back-catalogue-btn {
-    background: #333;
+    background: var(--color-morado);
     color: #fff;
     padding: 6px 12px;
     border-radius: 4px;
