@@ -6,78 +6,181 @@
     <title>Administración - Catálogo</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Supabase JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="admin-body">
 
-    <header class="header">
-        <div class="logo-container">
-            <span class="company-name">Panel Admin</span>
-        </div>
-        <div class="header-title">
-            <h1 id="form-title">Agregar Nuevo Producto</h1>
-        </div>
-        <div>
-            <a href="index.html" class="back-catalogue-btn"><i class="fa-solid fa-store"></i> Ver Catálogo</a>
-        </div>
-    </header>
-
-    <main class="container admin-container">
-        <!-- Formulario para agregar/editar producto -->
-        <section class="form-section">
-            <form id="product-form" onsubmit="guardarProducto(event)">
-                <input type="hidden" id="edit-id">
-
-                <div class="form-group">
-                    <label for="codigo">Código del Producto:</label>
-                    <input type="text" id="codigo" required placeholder="Ej. PROD-001">
-                </div>
-
-                <div class="form-group">
-                    <label for="nombre">Nombre del Producto:</label>
-                    <input type="text" id="nombre" required placeholder="Ej. Coche paseador">
-                </div>
-
-                <div class="form-group">
-                    <label for="categoria">Categoría:</label>
-                    <input type="text" id="categoria" required placeholder="Ej. Juguetes, Sillas, Lactancia">
-                </div>
-
-                <div class="form-group">
-                    <label for="precio">Valor / Precio ($):</label>
-                    <input type="number" step="0.01" id="precio" required placeholder="0.00">
-                </div>
-
-                <div class="form-group">
-                    <label for="descuento">Descuento (%):</label>
-                    <input type="number" id="descuento" value="0" min="0" max="100" placeholder="Ej. 15">
-                </div>
-
-                <div class="form-group">
-                    <label for="imagen">Enlace de la Foto (URL):</label>
-                    <input type="url" id="imagen" required placeholder="https://ejemplo.com/foto.jpg">
-                    <small>Sube tu imagen a internet (ej. Imgur) y pega el enlace directo aquí.</small>
-                </div>
-
-                <div class="form-group">
-                    <label for="descripcion">Descripción:</label>
-                    <textarea id="descripcion" rows="3" required placeholder="Detalles del producto..."></textarea>
-                </div>
-
-                <button type="submit" id="submit-btn-text" class="submit-btn"><i class="fa-solid fa-plus"></i> Guardar Producto</button>
-                <button type="button" id="cancel-edit-btn" class="cancel-btn" style="display:none; margin-top: 10px;" onclick="cancelarEdicion()">Cancelar Edición</button>
+    <!-- PANTALLA DE LOGIN (Oculta el panel hasta que inicie sesión) -->
+    <div id="login-screen" style="background-color: #f2f2f2; height: 100vh; display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;">
+        <div style="background: white; padding: 40px; border-radius: 12px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 400px; width: 100%; border-top: 5px solid #19efee;">
+            <h2 style="color: #2f2f2f; margin-bottom: 20px;">Acceso Administrador</h2>
+            <form onsubmit="iniciarSesion(event)" style="display: flex; flex-direction: column; gap: 15px;">
+                <input type="email" id="login-email" placeholder="Correo electrónico" required style="padding: 12px; border: 1px solid #a0a2ad; border-radius: 6px; outline: none;">
+                <input type="password" id="login-password" placeholder="Contraseña" required style="padding: 12px; border: 1px solid #a0a2ad; border-radius: 6px; outline: none;">
+                <button type="submit" style="background-color: #19efee; color: #2f2f2f; font-weight: bold; padding: 12px; border: none; border-radius: 6px; cursor: pointer;">
+                    Ingresar al Panel
+                </button>
             </form>
-        </section>
+            <p id="login-error" style="color: #fb5c74; margin-top: 10px; font-size: 14px; display: none;"></p>
+            <br>
+            <a href="index.html" style="color: #2f2f2f; font-size: 0.9text; text-decoration: none;"><i class="fa-solid fa-arrow-left"></i> Volver al Catálogo</a>
+        </div>
+    </div>
 
-        <!-- Lista de productos actuales -->
-        <section class="list-section">
-            <h2>Productos Registrados</h2>
-            <div id="admin-product-list" class="admin-list">
-                <!-- Se llena mediante JS -->
+    <!-- PANEL DE ADMINISTRACIÓN (Protegido) -->
+    <div id="admin-main-content" style="display: none;">
+        <header class="header">
+            <div class="logo-container">
+                <span class="company-name">Panel Admin</span>
             </div>
-        </section>
-    </main>
+            <div class="header-title">
+                <h1 id="form-title">Agregar Nuevo Producto</h1>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <a href="index.html" class="back-catalogue-btn"><i class="fa-solid fa-store"></i> Ver Catálogo</a>
+                <button onclick="cerrarSesion()" class="delete-btn" style="padding: 6px 12px; border-radius: 4px; cursor: pointer;"><i class="fa-solid fa-right-from-bracket"></i> Salir</button>
+            </div>
+        </header>
+
+        <main class="container admin-container">
+            
+            <!-- Columna Izquierda: Formulario de Productos y Subida de Logo -->
+            <div style="display: flex; flexDirection: column; gap: 20px;">
+                
+                <!-- Sección para subir el Logo de la Marca a Supabase -->
+                <section class="form-section" style="border-left: 4px solid #19efee;">
+                    <h3 style="color: #2f2f2f; margin-bottom: 10px;">Logo de la Marca</h3>
+                    <div class="form-group">
+                        <label for="logo-file">Subir nueva imagen de logo:</label>
+                        <input type="file" id="logo-file" accept="image/*" style="border: 1px dashed #a0a2ad; padding: 8px;">
+                    </div>
+                    <button type="button" onclick="subirLogoMarca()" class="submit-btn" style="background-color: #2f2f2f; color: #19efee;">
+                        <i class="fa-solid fa-upload"></i> Guardar Logo en Supabase
+                    </button>
+                </section>
+
+                <!-- Formulario de Productos -->
+                <section class="form-section">
+                    <form id="product-form" onsubmit="guardarProducto(event)">
+                        <input type="hidden" id="edit-id">
+
+                        <div class="form-group">
+                            <label for="codigo">Código del Producto:</label>
+                            <input type="text" id="codigo" required placeholder="Ej. PROD-001">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="nombre">Nombre del Producto:</label>
+                            <input type="text" id="nombre" required placeholder="Ej. Coche paseador">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="categoria">Categoría:</label>
+                            <input type="text" id="categoria" required placeholder="Ej. Juguetes, Sillas, Lactancia">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="precio">Valor / Precio ($):</label>
+                            <input type="number" step="0.01" id="precio" required placeholder="0.00">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="descuento">Descuento (%):</label>
+                            <input type="number" id="descuento" value="0" min="0" max="100" placeholder="Ej. 15">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="imagen">Enlace de la Foto (URL):</label>
+                            <input type="url" id="imagen" required placeholder="https://ejemplo.com/foto.jpg">
+                            <small>Sube tu imagen a internet y pega el enlace directo aquí.</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="descripcion">Descripción:</label>
+                            <textarea id="descripcion" rows="3" required placeholder="Detalles del producto..."></textarea>
+                        </div>
+
+                        <button type="submit" id="submit-btn-text" class="submit-btn"><i class="fa-solid fa-plus"></i> Guardar Producto</button>
+                        <button type="button" id="cancel-edit-btn" class="cancel-btn" style="display:none; margin-top: 10px;" onclick="cancelarEdicion()">Cancelar Edición</button>
+                    </form>
+                </section>
+
+            </div>
+
+            <!-- Columna Derecha: Lista de productos actuales -->
+            <section class="list-section">
+                <h2>Productos Registrados</h2>
+                <div id="admin-product-list" class="admin-list">
+                    <!-- Dinámico -->
+                </div>
+            </section>
+        </main>
+    </div>
 
     <script>
+        // Configuración de Supabase (Reemplaza con tus credenciales reales)
+        const SUPABASE_URL = 'TU_SUPABASE_URL';
+        const SUPABASE_ANON_KEY = 'TU_SUPABASE_ANON_KEY';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Verificar sesión al cargar la página de admin
+        async function verificarAutenticacion() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('admin-main-content').style.display = 'block';
+                cargarListaAdmin();
+            } else {
+                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('admin-main-content').style.display = 'none';
+            }
+        }
+
+        async function iniciarSesion(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            
+            if (error) {
+                const errBox = document.getElementById('login-error');
+                errBox.style.display = 'block';
+                errBox.textContent = "Error: Correo o contraseña incorrectos.";
+            } else {
+                verificarAutenticacion();
+            }
+        }
+
+        async function cerrarSesion() {
+            await supabase.auth.signOut();
+            window.location.reload();
+        }
+
+        // Subir Logo a Supabase Storage (Bucket: 'config-catalogo')
+        async function subirLogoMarca() {
+            const fileInput = document.getElementById('logo-file');
+            if (fileInput.files.length === 0) {
+                alert("Selecciona una imagen de logo primero.");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const filePath = 'logo/marca_logo.png';
+
+            const { error } = await supabase.storage
+                .from('config-catalogo')
+                .upload(filePath, file, { upsert: true });
+
+            if (error) {
+                alert("Error al subir el logo: " + error.message + "\n(Asegúrate de haber creado el Bucket 'config-catalogo' en Supabase).");
+            } else {
+                alert("¡Logo actualizado con éxito en Supabase!");
+            }
+        }
+
+        // Lógica de productos
         let productos = JSON.parse(localStorage.getItem('catalogo_productos')) || [];
 
         function guardarProducto(e) {
@@ -96,11 +199,9 @@
             };
 
             if (editId) {
-                // Actualizar existente
                 productos = productos.map(p => p.id === Number(editId) ? productoData : p);
                 alert('¡Producto actualizado con éxito!');
             } else {
-                // Agregar nuevo
                 productos.push(productoData);
                 alert('¡Producto agregado exitosamente!');
             }
@@ -177,7 +278,8 @@
             });
         }
 
-        cargarListaAdmin();
+        // Ejecutar verificación de sesión al cargar
+        verificarAutenticacion();
     </script>
 </body>
 </html>
