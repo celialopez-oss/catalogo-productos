@@ -5,16 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Catálogo 2026</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Iconos para WhatsApp y diseño -->
+    <!-- Iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Supabase JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
     <!-- Cabecera -->
     <header class="header">
         <div class="logo-container">
-            <img src="logo.png" alt="Logo Compañía" class="logo" onerror="this.src='https://via.placeholder.com/60?text=LOGO'">
-            <span class="company-name">Mi Compañía</span>
+            <img id="brand-logo" src="logo.png" alt="Logo Compañía" class="logo" onerror="this.src='https://via.placeholder.com/60?text=LOGO'">
+            <span class="company-name">Mi Catálogo</span>
         </div>
         <div class="header-title">
             <h1>Catálogo 2026</h1>
@@ -31,7 +33,7 @@
         <section class="categories-section">
             <h2>Categorías</h2>
             <div id="category-filters" class="category-buttons">
-                <!-- Se generan dinámicamente con JavaScript -->
+                <!-- Dinámico -->
             </div>
         </section>
 
@@ -39,20 +41,37 @@
         <section class="products-section">
             <h2 id="current-category-title">Todos los Productos</h2>
             <div id="product-grid" class="product-grid">
-                <!-- Los productos se cargan aquí automáticamente -->
+                <!-- Dinámico -->
             </div>
         </section>
 
     </main>
 
-    <!-- Script para cargar los productos y filtros -->
     <script>
+        // Configuración de Supabase (Reemplaza con tus credenciales reales)
+        const SUPABASE_URL = 'TU_SUPABASE_URL';
+        const SUPABASE_ANON_KEY = 'TU_SUPABASE_ANON_KEY';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
         let productos = JSON.parse(localStorage.getItem('catalogo_productos')) || [
             { id: 1, codigo: "JUG-001", categoria: "Juguetes", nombre: "Auto a Batería", precio: 45.00, descuento: 10, descripcion: "Auto deportivo eléctrico recargable para niños.", imagen: "https://images.unsplash.com/photo-1594787318286-3d835c1d202f?w=400" },
             { id: 2, codigo: "LAC-002", categoria: "Lactancia", nombre: "Extractor de Leche", precio: 30.00, descuento: 0, descripcion: "Extractor eléctrico doble con masajeador de silicona.", imagen: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400" }
         ];
 
-        const numeroWhatsApp = "593999999999"; // Reemplaza con tu número de WhatsApp
+        const numeroWhatsApp = "593999999999"; // Cambia por tu número de WhatsApp
+
+        // Cargar logo guardado en Supabase al abrir el catálogo
+        async function cargarLogoPublico() {
+            try {
+                const { data } = supabase.storage.from('config-catalogo').getPublicUrl('logo/marca_logo.png');
+                if (data && data.publicUrl) {
+                    // Verificamos si realmente existe la imagen agregándole un timestamp para evitar caché
+                    document.getElementById('brand-logo').src = data.publicUrl + '?' + new Date().getTime();
+                }
+            } catch (e) {
+                console.log("Usando logo por defecto");
+            }
+        }
 
         function renderCategories() {
             const container = document.getElementById('category-filters');
@@ -127,6 +146,7 @@
             });
         }
 
+        cargarLogoPublico();
         renderCategories();
         filtrarProductos('Todos');
     </script>
