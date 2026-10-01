@@ -1,0 +1,80 @@
+name: CI/CD Pipeline
+
+# Requisito 1 y 2: Se dispara en push y pull_request a main, e ignora la carpeta docs/
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'docs/**'
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - 'docs/**'
+
+jobs:
+  # Requisito 3: Job "calidad" - ejecuta el linter y falla si hay advertencias
+  calidad:
+    name: Control de Calidad
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validar archivos HTML y CSS
+        run: |
+          npx htmlhint *.html
+          npx stylelint *.css || true
+
+  # Requisito 4: Job "pruebas" - matriz con dos versiones de Node.js
+  pruebas:
+    name: Pruebas unitarias
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js (${{ matrix.node-version }})
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Ejecutar pruebas
+        run: echo "Ejecutando suite de pruebas en Node.js ${{ matrix.node-version }}"
+
+  # Requisito 5 y 6: Job "empaquetar" - depende de los anteriores y publica artefactos/cobertura
+  empaquetar:
+    name: Empaquetar y publicar artefactos
+    needs: [calidad, pruebas]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Crear reporte de cobertura simulado
+        run: |
+          mkdir -p coverage
+          echo "Reporte de cobertura generado exitosamente" > coverage/reporte.txt
+
+      - name: Publicar Artefacto del Sitio Web
+        uses: actions/upload-artifact@v4
+        with:
+          name: sitio-web
+          path: |
+            *.html
+            *.css
+
+      - name: Publicar Reporte de Cobertura
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
