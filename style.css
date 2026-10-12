@@ -367,3 +367,18 @@ body {
     text-decoration: none;
     font-size: 0.9rem;
 }
+
+.logout-btn {
+    background: #e74c3c;
+    color: #fff;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-right: 8px;
+}
+.logout-btn:hover {
+    background: #c0392b;
+}
