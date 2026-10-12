@@ -199,7 +199,7 @@
                 const fileName = `${Date.now()}_${file.name}`;
                 
                 const { data: uploadData, error: uploadError } = await supabaseClient.storage
-                    .from('productos-imgs')
+                    .from('productos-img')
                     .upload(fileName, file);
 
                 if (uploadError) {
