@@ -91,7 +91,7 @@
         </section>
 
         <section class="list-section">
-            <h2>Productos Registrados</h2>
+            <h2>Productos Registrados (Orden Alfabético)</h2>
             <div id="admin-product-list" class="admin-list">
                 <p>Cargando lista...</p>
             </div>
@@ -99,8 +99,8 @@
     </main>
 
     <script>
-        const SUPABASE_URL = 'https://flzjaeudmnxhhavcvmuo.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_KVjojmlQZoC7dFBi3FQTKQ_LfsfpkjI';
+        const SUPABASE_URL = 'https://tu-proyecto.supabase.co';
+        const SUPABASE_ANON_KEY = 'tu-clave-anon-aqui';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let productos = [];
@@ -157,10 +157,21 @@
         }
 
         async function cargarListaAdmin() {
-            const { data, error } = await supabaseClient.from('productos').select('*').order('id', { ascending: false });
-            if (error) return;
-            productos = data || [];
             const listContainer = document.getElementById('admin-product-list');
+            
+            // Consultar a Supabase ordenado alfabéticamente por nombre
+            const { data, error } = await supabaseClient
+                .from('productos')
+                .select('*')
+                .order('nombre', { ascending: true });
+
+            if (error) {
+                console.error('Error al obtener datos:', error);
+                listContainer.innerHTML = `<p style="color:red;">Error al cargar: ${error.message}</p>`;
+                return;
+            }
+
+            productos = data || [];
             listContainer.innerHTML = '';
             
             if (productos.length === 0) {
@@ -193,7 +204,7 @@
             const fileInput = document.getElementById('imagen-file');
             let imageUrl = document.getElementById('imagen-actual').value;
 
-            // Si seleccionó un nuevo archivo, lo subimos a Supabase Storage
+            // Si seleccionó un archivo nuevo, lo subimos a Supabase Storage
             if (fileInput.files.length > 0) {
                 const file = fileInput.files[0];
                 const fileName = `${Date.now()}_${file.name}`;
@@ -207,9 +218,8 @@
                     return;
                 }
 
-                // Obtener URL pública de la imagen subida
                 const { data: publicURLData } = supabaseClient.storage
-                    .from('productos-imgs')
+                    .from('productos-img')
                     .getPublicUrl(fileName);
 
                 imageUrl = publicURLData.publicUrl;
@@ -232,11 +242,11 @@
 
             if (editId) {
                 const { error } = await supabaseClient.from('productos').update(productoData).eq('id', Number(editId));
-                if (error) { alert('Error: ' + error.message); return; }
+                if (error) { alert('Error al actualizar: ' + error.message); return; }
                 alert('¡Producto actualizado con éxito!');
             } else {
                 const { error } = await supabaseClient.from('productos').insert([productoData]);
-                if (error) { alert('Error: ' + error.message); return; }
+                if (error) { alert('Error al guardar: ' + error.message); return; }
                 alert('¡Producto agregado exitosamente!');
             }
 
@@ -260,7 +270,7 @@
             document.getElementById('form-title').textContent = "Editar Producto";
             document.getElementById('submit-btn-text').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Actualizar Producto';
             document.getElementById('cancel-edit-btn').style.display = 'block';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({ top: { top: 0, behavior: 'smooth' } });
         }
 
         function cancelarEdicion() {
@@ -275,7 +285,7 @@
         async function eliminarProducto(id) {
             if (confirm('¿Estás segura de eliminar este producto?')) {
                 const { error } = await supabaseClient.from('productos').delete().eq('id', id);
-                if (error) { alert('Error: ' + error.message); return; }
+                if (error) { alert('Error al eliminar: ' + error.message); return; }
                 cargarListaAdmin();
             }
         }
