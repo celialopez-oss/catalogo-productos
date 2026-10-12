@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catálogo 2026</title>
+    <title>Bebé en Camino - Catálogo</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -12,47 +12,105 @@
 
     <header class="header">
         <div class="logo-container">
-            <img src="logo.png" alt="Logo Compañía" class="logo" onerror="this.src='https://via.placeholder.com/60?text=LOGO'">
-            <span class="company-name">Mi Compañía</span>
+            <img src="logo.png" alt="Logo Bebé en Camino" class="logo" onerror="this.src='https://via.placeholder.com/60?text=LOGO'">
+            <span class="company-name">Bebé en Camino</span>
         </div>
         <div class="header-title">
             <h1>Catálogo 2026</h1>
         </div>
-        <!-- Aquí ya no hay ningún enlace de Admin -->
     </header>
 
+    <!-- BANNER DINÁMICO -->
+    <div class="banner-section" id="banner-container">
+        <img id="banner-img" src="" alt="Banner Promocional" style="display:none;" onerror="this.style.display='none'">
+    </div>
+
     <main class="container">
-        <section class="categories-section">
-            <h2>Categorías</h2>
+        <!-- BUSCADOR Y CATEGORÍAS -->
+        <div class="search-filter-container">
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="search-input" placeholder="Buscar producto por nombre o código..." oninput="filtrarYBuscar()">
+            </div>
             <div id="category-filters" class="category-buttons"></div>
-        </section>
+        </div>
 
         <section class="products-section">
-            <h2 id="current-category-title">Todos los Productos</h2>
+            <h2 id="current-category-title">Últimos Productos</h2>
             <div id="product-grid" class="product-grid">
                 <p class="loading-text">Cargando productos...</p>
             </div>
+            <div class="load-more-container" id="load-more-container" style="display: none;">
+                <button class="load-more-btn" onclick="verMasProductos()">Ver Más Productos</button>
+            </div>
         </section>
     </main>
+
+    <!-- FOOTER / CONTACTO -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Bebé en Camino</h4>
+                <p>Todo lo que necesitas para tu bebé y la etapa más hermosa de la maternidad.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Contacto</h4>
+                <p><i class="fa-solid fa-phone"></i> +593 99 999 9999</p>
+                <p><i class="fa-solid fa-envelope"></i> contacto@bebeenamino.com</p>
+                <p><i class="fa-solid fa-location-dot"></i> Guayaquil, Ecuador</p>
+            </div>
+            <div class="footer-section">
+                <h4>Redes Sociales</h4>
+                <div class="social-icons">
+                    <a href="#" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#" target="_blank"><i class="fa-brands fa-facebook"></i></a>
+                    <a href="#" target="_blank"><i class="fa-brands fa-whatsapp"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Bebé en Camino. Todos los derechos reservados.</p>
+        </div>
+    </footer>
 
     <script>
         const SUPABASE_URL = 'https://flzjaeudmnxhhavcvmuo.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_KVjojmlQZoC7dFBi3FQTKQ_LfsfpkjI';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        const numeroWhatsApp = "593999999999"; // Tu número de WhatsApp
+        const numeroWhatsApp = "593999999999";
         let productos = [];
+        let categoriaActual = 'Todos';
+        let limiteMostrados = 8; // Mostrar los 8 últimos inicialmente
+
+        async function inicializarCatalogo() {
+            await cargarBanner();
+            await cargarProductos();
+        }
+
+        async function cargarBanner() {
+            const { data, error } = await supabaseClient.from('configuracion').select('*').eq('clave', 'banner').single();
+            if (data && data.valor) {
+                const bannerImg = document.getElementById('banner-img');
+                bannerImg.src = data.valor;
+                bannerImg.style.display = 'block';
+            }
+        }
 
         async function cargarProductos() {
-            const { data, error } = await supabaseClient.from('productos').select('*');
+            const { data, error } = await supabaseClient
+                .from('productos')
+                .select('*')
+                .order('id', { ascending: false }); // Últimos subidos primero
+
             if (error) {
-                console.error('Error al cargar:', error);
-                document.getElementById('product-grid').innerHTML = '<p class="no-products">Error al conectar con la base de datos.</p>';
+                console.error('Error:', error);
+                document.getElementById('product-grid').innerHTML = '<p>Error al conectar con la base de datos.</p>';
                 return;
             }
             productos = data || [];
             renderCategories();
-            filtrarProductos('Todos');
+            filtrarYBuscar();
         }
 
         function renderCategories() {
@@ -60,33 +118,46 @@
             const categorias = ['Todos', ...new Set(productos.map(p => p.categoria))];
             
             container.innerHTML = '';
-            categorias.forEach((cat, index) => {
+            categorias.forEach((cat) => {
                 const btn = document.createElement('button');
-                btn.className = `cat-btn ${index === 0 ? 'active' : ''}`;
+                btn.className = `cat-btn ${cat === categoriaActual ? 'active' : ''}`;
                 btn.textContent = cat;
                 btn.onclick = () => {
+                    categoriaActual = cat;
+                    limiteMostrados = 8; // Reiniciar contador al cambiar de categoría
                     document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
-                    filtrarProductos(cat);
+                    filtrarYBuscar();
                 };
                 container.appendChild(btn);
             });
         }
 
-        function filtrarProductos(categoria) {
+        function filtrarYBuscar() {
+            const query = document.getElementById('search-input').value.toLowerCase().trim();
             const grid = document.getElementById('product-grid');
             const title = document.getElementById('current-category-title');
-            title.textContent = categoria === 'Todos' ? 'Todos los Productos' : categoria;
-            
-            const filtrados = categoria === 'Todos' ? productos : productos.filter(p => p.categoria === categoria);
-            
+            const loadMoreBtnContainer = document.getElementById('load-more-container');
+
+            title.textContent = categoriaActual === 'Todos' ? 'Últimos Productos' : categoriaActual;
+
+            let filtrados = productos.filter(p => {
+                const coincideCat = (categoriaActual === 'Todos' || p.categoria === categoriaActual);
+                const coincideQuery = (p.nombre.toLowerCase().includes(query) || (p.codigo && p.codigo.toLowerCase().includes(query)));
+                return coincideCat && coincideQuery;
+            });
+
             grid.innerHTML = '';
             if (filtrados.length === 0) {
-                grid.innerHTML = '<p class="no-products">No hay productos en esta categoría.</p>';
+                grid.innerHTML = '<p class="no-products">No se encontraron productos.</p>';
+                loadMoreBtnContainer.style.display = 'none';
                 return;
             }
 
-            filtrados.forEach(prod => {
+            // Mostrar solo hasta el límite configurado (8 iniciales)
+            const aMostrar = filtrados.slice(0, limiteMostrados);
+
+            aMostrar.forEach(prod => {
                 const precioFinal = Number(prod.precio) || 0;
                 const mensajeWp = encodeURIComponent(`Hola, estoy interesado/a en el producto [Cód: ${prod.codigo || 'N/D'}] *${prod.nombre}* con valor de $${precioFinal.toFixed(2)}. ¿Me da más información?`);
                 const linkWp = `https://wa.me/${numeroWhatsApp}?text=${mensajeWp}`;
@@ -99,14 +170,12 @@
                     </div>
                     <div class="product-info">
                         <div class="product-top-info">
-                            <span class="product-category-tag">${prod.categoria} ${prod.seccion ? `(${prod.seccion})` : ''}</span>
-                            ${prod.codigo ? `<span class="product-code-tag">Cód: ${prod.codigo}</span>` : ''}
+                            <span>${prod.categoria} ${prod.seccion ? `(${prod.seccion})` : ''}</span>
+                            ${prod.codigo ? `<span>Cód: ${prod.codigo}</span>` : ''}
                         </div>
                         <h3>${prod.nombre}</h3>
                         <p class="description">${prod.descripcion}</p>
-                        <div class="price-box">
-                            <span class="current-price">$${precioFinal.toFixed(2)}</span>
-                        </div>
+                        <div class="price-box">$${precioFinal.toFixed(2)}</div>
                         <a href="${linkWp}" target="_blank" class="whatsapp-btn">
                             <i class="fa-brands fa-whatsapp"></i> Preguntar / Comprar
                         </a>
@@ -114,9 +183,21 @@
                 `;
                 grid.appendChild(card);
             });
+
+            // Controlar visibilidad del botón Ver Más
+            if (filtrados.length > limiteMostrados) {
+                loadMoreBtnContainer.style.display = 'block';
+            } else {
+                loadMoreBtnContainer.style.display = 'none';
+            }
         }
 
-        cargarProductos();
+        function verMasProductos() {
+            limiteMostrados += 8; // Muestra 8 más cada vez que hace click
+            filtrarYBuscar();
+        }
+
+        inicializarCatalogo();
     </script>
 </body>
 </html>
