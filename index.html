@@ -13,14 +13,12 @@
     <header class="header">
         <div class="logo-container">
             <img src="logo.png" alt="Logo Compañía" class="logo" onerror="this.src='https://via.placeholder.com/60?text=LOGO'">
-            <span class="company-name">Bebé en Camino</span>
+            <span class="company-name">Mi Compañía</span>
         </div>
         <div class="header-title">
             <h1>Catálogo 2026</h1>
         </div>
-        <div class="admin-link-container">
-            <a href="admin.html" class="admin-btn-hidden" title="Panel Admin"><i class="fa-solid fa-lock"></i> Admin</a>
-        </div>
+        <!-- Aquí ya no hay ningún enlace de Admin -->
     </header>
 
     <main class="container">
@@ -32,13 +30,13 @@
         <section class="products-section">
             <h2 id="current-category-title">Todos los Productos</h2>
             <div id="product-grid" class="product-grid">
-                <p class="loading-text">Cargando productos desde Supabase...</p>
+                <p class="loading-text">Cargando productos...</p>
             </div>
         </section>
     </main>
 
     <script>
-        const SUPABASE_URL = 'https://flzjaeudmnxhhavcvmuo.supabase.co'; // Tus datos de Supabase
+        const SUPABASE_URL = 'https://flzjaeudmnxhhavcvmuo.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_KVjojmlQZoC7dFBi3FQTKQ_LfsfpkjI';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -48,7 +46,7 @@
         async function cargarProductos() {
             const { data, error } = await supabaseClient.from('productos').select('*');
             if (error) {
-                console.error('Error al cargar productos:', error);
+                console.error('Error al cargar:', error);
                 document.getElementById('product-grid').innerHTML = '<p class="no-products">Error al conectar con la base de datos.</p>';
                 return;
             }
