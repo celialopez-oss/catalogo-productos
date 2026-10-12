@@ -37,18 +37,18 @@ body {
 .logo-container {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 15px;
 }
 
 .logo {
-    height: 50px;
+    height: 75px; /* Logo más grande y visible */
     object-fit: contain;
 }
 
 .company-name {
     font-weight: 700;
-    font-size: 1.2rem;
-    color: var(--dark-text);
+    font-size: 1.4rem;
+    color: #fb4668; /* Color rosado solicitado */
 }
 
 .header-title h1 {
@@ -74,7 +74,7 @@ body {
     object-fit: cover;
 }
 
-/* CONTENEDOR GENERAL Y BUSCADOR */
+/* CONTENEDOR GENERAL Y BUSCADOR CON CATEGORÍAS ABAJO */
 .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -83,10 +83,8 @@ body {
 
 .search-filter-container {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 20px;
+    flex-direction: column; /* Apila los elementos verticalmente */
+    gap: 15px;
     margin-bottom: 30px;
     background: var(--white);
     padding: 20px;
@@ -96,8 +94,7 @@ body {
 
 .search-box {
     position: relative;
-    flex: 1;
-    min-width: 280px;
+    width: 100%;
 }
 
 .search-box input {
@@ -126,6 +123,8 @@ body {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
+    justify-content: center; /* Categorías centradas debajo del buscador */
+    width: 100%;
 }
 
 .cat-btn {
@@ -299,11 +298,22 @@ body {
     color: var(--white);
 }
 
+/* Redes sociales más grandes y notorias */
 .social-icons {
     display: flex;
-    gap: 15px;
-    font-size: 1.3rem;
-    margin-top: 10px;
+    gap: 20px;
+    font-size: 1.8rem;
+    margin-top: 12px;
+}
+
+.social-icons a {
+    color: var(--secondary-color);
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.social-icons a:hover {
+    transform: scale(1.15);
+    color: var(--white);
 }
 
 .footer-bottom {
