@@ -46,7 +46,7 @@
         <section class="form-section">
             <h2 id="form-title">Agregar Nuevo Producto</h2>
             <form id="product-form" onsubmit="guardarProducto(event)">
-                <input type="hidden" id="edit-id">
+                <input type="hidden" id="edit-codigo-original">
                 <input type="hidden" id="imagen-actual">
 
                 <div class="form-group">
@@ -159,7 +159,6 @@
         async function cargarListaAdmin() {
             const listContainer = document.getElementById('admin-product-list');
             
-            // Consultar a Supabase ordenado alfabéticamente por nombre
             const { data, error } = await supabaseClient
                 .from('productos')
                 .select('*')
@@ -186,12 +185,12 @@
                 item.innerHTML = `
                     <img src="${prod.imagen}" width="50" height="50" style="object-fit:cover; border-radius:4px;" onerror="this.src='https://via.placeholder.com/50?text=Img'">
                     <div class="admin-item-info">
-                        <strong>[${prod.codigo || 'S/C'}] ${prod.nombre}</strong><br>
+                        <strong>[${prod.codigo}] ${prod.nombre}</strong><br>
                         <small>${prod.categoria} (${prod.seccion || 'Sin sección'}) - $${precioFinal.toFixed(2)}</small>
                     </div>
                     <div class="admin-actions">
-                        <button onclick="editarProducto(${prod.id})" class="edit-btn" title="Editar"><i class="fa-solid fa-pen"></i></button>
-                        <button onclick="eliminarProducto(${prod.id})" class="delete-btn" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="editarProducto('${prod.codigo}')" class="edit-btn" title="Editar"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="eliminarProducto('${prod.codigo}')" class="delete-btn" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 `;
                 listContainer.appendChild(item);
@@ -200,11 +199,10 @@
 
         async function guardarProducto(e) {
             e.preventDefault();
-            const editId = document.getElementById('edit-id').value;
+            const editCodigoOriginal = document.getElementById('edit-codigo-original').value;
             const fileInput = document.getElementById('imagen-file');
             let imageUrl = document.getElementById('imagen-actual').value;
 
-            // Si seleccionó un archivo nuevo, lo subimos a Supabase Storage
             if (fileInput.files.length > 0) {
                 const file = fileInput.files[0];
                 const fileName = `${Date.now()}_${file.name}`;
@@ -240,8 +238,8 @@
                 descripcion: document.getElementById('descripcion').value.trim()
             };
 
-            if (editId) {
-                const { error } = await supabaseClient.from('productos').update(productoData).eq('id', Number(editId));
+            if (editCodigoOriginal) {
+                const { error } = await supabaseClient.from('productos').update(productoData).eq('codigo', editCodigoOriginal);
                 if (error) { alert('Error al actualizar: ' + error.message); return; }
                 alert('¡Producto actualizado con éxito!');
             } else {
@@ -254,13 +252,13 @@
             cargarListaAdmin();
         }
 
-        function editarProducto(id) {
-            const prod = productos.find(p => p.id === id);
+        function editarProducto(codigo) {
+            const prod = productos.find(p => p.codigo === codigo);
             if (!prod) return;
 
-            document.getElementById('edit-id').value = prod.id;
+            document.getElementById('edit-codigo-original').value = prod.codigo;
             document.getElementById('imagen-actual').value = prod.imagen;
-            document.getElementById('codigo').value = prod.codigo || '';
+            document.getElementById('codigo').value = prod.codigo;
             document.getElementById('nombre').value = prod.nombre;
             document.getElementById('categoria').value = prod.categoria;
             document.getElementById('seccion').value = prod.seccion || '';
@@ -270,21 +268,21 @@
             document.getElementById('form-title').textContent = "Editar Producto";
             document.getElementById('submit-btn-text').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Actualizar Producto';
             document.getElementById('cancel-edit-btn').style.display = 'block';
-            window.scrollTo({ top: { top: 0, behavior: 'smooth' } });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function cancelarEdicion() {
             document.getElementById('product-form').reset();
-            document.getElementById('edit-id').value = '';
+            document.getElementById('edit-codigo-original').value = '';
             document.getElementById('imagen-actual').value = '';
             document.getElementById('form-title').textContent = "Agregar Nuevo Producto";
             document.getElementById('submit-btn-text').innerHTML = '<i class="fa-solid fa-plus"></i> Guardar Producto';
             document.getElementById('cancel-edit-btn').style.display = 'none';
         }
 
-        async function eliminarProducto(id) {
+        async function eliminarProducto(codigo) {
             if (confirm('¿Estás segura de eliminar este producto?')) {
-                const { error } = await supabaseClient.from('productos').delete().eq('id', id);
+                const { error } = await supabaseClient.from('productos').delete().eq('codigo', codigo);
                 if (error) { alert('Error al eliminar: ' + error.message); return; }
                 cargarListaAdmin();
             }
